@@ -14,7 +14,7 @@ It requires the ircd to support EXTJWT tokens, and a php server to upload the av
 
    ```console
    $ npm install
-   $ rpm run build
+   $ npm run build
    ```
 
    The plugin will then be created at `dist/plugin-avatar-upload.js`
