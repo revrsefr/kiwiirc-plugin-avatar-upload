@@ -1,44 +1,45 @@
 <template>
-    <div v-if="$parent.isSelf && user.account" class="p-avatar-upload">
-        <div class="p-avatar-upload-title">
-            {{ $t('plugin-avatar-upload:title') }}
+    <div>
+        <div v-if="$parent.isSelf && user.account" class="p-avatar-upload">
+            <div class="p-avatar-upload-title">
+                {{ $t('plugin-avatar-upload:title') }}
+            </div>
+            <vue-cropper
+                v-if="showCropper"
+                ref="cropper"
+                :src="cropperSrc"
+                v-bind="cropperOptions"
+                class="p-avatar-upload-cropper"
+                @error="handleError"
+            />
+            <div v-else-if="showUploading" class="p-avatar-upload-uploading">
+                {{ $t('plugin-avatar-upload:uploading') }}
+            </div>
+            <div v-else-if="postError" class="p-avatar-upload-error">
+                {{ postError[0] === '_' ? $t('plugin-avatar-upload:' + postError.substring(1)) : postError }}
+            </div>
+            <div class="p-avatar-upload-input">
+                <button type="button" class="u-button u-button-primary" @click="chooseFile">
+                    {{ $t('plugin-avatar-upload:choose') }}
+                </button>
+                <div class="p-avatar-upload-file-name">{{ fileName }}</div>
+                <button
+                    type="button"
+                    class="u-button u-button-primary"
+                    :style="{ visibility: showCropper ? 'visible' : 'hidden' }"
+                    @click="sendImage"
+                >
+                    {{ $t('plugin-avatar-upload:upload') }}
+                </button>
+            </div>
+            <input ref="file" type="file" accept="image/*" @change="handleFileChange" />
         </div>
-        <vue-cropper
-            v-if="showCropper"
-            ref="cropper"
-            :src="cropperSrc"
-            v-bind="cropperOptions"
-            class="p-avatar-upload-cropper"
-            @error="handleError"
-        />
-        <div v-else-if="showUploading" class="p-avatar-upload-uploading">
-            {{ $t('plugin-avatar-upload:uploading') }}
-        </div>
-        <div v-else-if="postError" class="p-avatar-upload-error">
-            {{ postError[0] === '_' ? $t('plugin-avatar-upload:' + postError.substring(1)) : postError }}
-        </div>
-        <div class="p-avatar-upload-input">
-            <button type="button" class="u-button u-button-primary" @click="chooseFile">
-                {{ $t('plugin-avatar-upload:choose') }}
-            </button>
-            <div class="p-avatar-upload-file-name">{{ fileName }}</div>
-            <button
-                type="button"
-                class="u-button u-button-primary"
-                :style="{ visibility: showCropper ? 'visible' : 'hidden' }"
-                @click="sendImage"
-            >
-                {{ $t('plugin-avatar-upload:upload') }}
-            </button>
-        </div>
-        <input ref="file" type="file" accept="image/*" @change="handleFileChange" />
     </div>
 </template>
 
 <script>
 import VueCropper from 'vue-cropperjs';
 import 'cropperjs/dist/cropper.css';
-
 import * as config from '@/config.js';
 
 export default {
@@ -50,7 +51,6 @@ export default {
         return {
             showCropper: false,
             showUploading: false,
-
             cropperSrc: null,
             cropperOptions: {
                 viewMode: 1,
@@ -116,7 +116,7 @@ export default {
 
             croppedCanvas.toBlob((blob) => {
                 const formData = new FormData();
-                formData.append('image', blob);
+                formData.append('image', blob, this.fileName); // Ensure filename is included
 
                 fetch(config.getSetting('api_url'), {
                     method: 'POST',
@@ -158,20 +158,16 @@ export default {
 
                 const callback = (command, event, eventNetwork) => {
                     if (network !== eventNetwork) {
-                        // Not a token for this network
                         return;
                     }
 
                     event.handled = true;
                     fullToken += event.params[event.params.length - 1];
                     if (event.params.length === 4) {
-                        // Incomplete token, it will continue in the next message
                         return;
                     }
                     clearTimeout(timeout);
                     this.$state.$off('irc.raw.EXTJWT', callback);
-
-                    // Resolve the promise
                     resolve(fullToken);
                 };
 
@@ -206,13 +202,11 @@ export default {
 
     .cropper-view-box {
         border-radius: 50%;
-        /* stylelint-disable-next-line declaration-no-important */
         outline: inherit !important;
         box-shadow: 0 0 0 1px #39f;
     }
 
     .cropper-face {
-        /* stylelint-disable-next-line declaration-no-important */
         background-color: inherit !important;
     }
 }

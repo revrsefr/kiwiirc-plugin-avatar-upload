@@ -3,7 +3,7 @@
 export const configBase = 'plugin-avatar-upload';
 
 export const defaultConfig = {
-    api_url: '/api.php',
+    api_url: '/upload',
     avatars_url: '/avatars/',
     preload_avatars: true,
     set_avatars: true,
