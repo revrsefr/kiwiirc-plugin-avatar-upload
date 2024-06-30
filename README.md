@@ -13,8 +13,8 @@ It requires the ircd to support EXTJWT tokens, and a php server to upload the av
 1. Build the plugin
 
    ```console
-   $ yarn
-   $ yarn build
+   $ npm install
+   $ rpm run build
    ```
 
    The plugin will then be created at `dist/plugin-avatar-upload.js`
@@ -38,7 +38,7 @@ It requires the ircd to support EXTJWT tokens, and a php server to upload the av
 ``` json5
 "plugin-avatar-upload" : {
     // Url path to api.php
-    "api_url": "/path/to/api.php",
+    "api_url": "/upload",
 
     // Url path to avatar storage directory
     "avatars_url": '/path/to/avatars/',
