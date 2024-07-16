@@ -23,7 +23,7 @@ kiwi.plugin('asl', (kiwi, log) => {
         }
 
         if (!event.account) {
-            // User has logged out remove our avatars
+            // User has logged out, remove our avatars
             clearPluginAvatars(user.avatar);
         }
 
@@ -97,3 +97,4 @@ kiwi.plugin('asl', (kiwi, log) => {
         );
     }
 });
+
