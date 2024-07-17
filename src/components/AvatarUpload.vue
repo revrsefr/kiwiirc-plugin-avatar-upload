@@ -18,6 +18,9 @@
             <div v-else-if="postError" class="p-avatar-upload-error">
                 {{ postError[0] === '_' ? $t('plugin-avatar-upload:' + postError.substring(1)) : postError }}
             </div>
+            <div v-else-if="pendingApproval" class="p-avatar-upload-pending">
+                {{ $t('plugin-avatar-upload:pending_approval') }}
+            </div>
             <div class="p-avatar-upload-input">
                 <button type="button" class="u-button u-button-primary" @click="chooseFile">
                     {{ $t('plugin-avatar-upload:choose') }}
@@ -59,6 +62,7 @@ export default {
             },
             fileName: '',
             postError: '',
+            pendingApproval: false,  // Add this line to track pending approval status
         };
     },
     methods: {
@@ -129,13 +133,7 @@ export default {
                         if (!response.ok) {
                             throw new Error();
                         }
-                        const avatarUrl = config.getSetting('avatars_url');
-                        const lcAccount = this.user.account.toLowerCase();
-                        const date = Date.now();
-                        Object.assign(this.user.avatar, {
-                            small: avatarUrl + `small/${lcAccount}.png?cb=${date}`,
-                            large: avatarUrl + `large/${lcAccount}.png?cb=${date}`,
-                        });
+                        this.pendingApproval = true;  // Set pending approval status
                     })
                     .catch(() => {
                         this.postError = '_error';
@@ -212,7 +210,8 @@ export default {
 }
 
 .p-avatar-upload-uploading,
-.p-avatar-upload-error {
+.p-avatar-upload-error,
+.p-avatar-upload-pending { /* Add this line for pending status styling */
     margin-top: 0.5em;
     text-align: center;
 }
@@ -226,6 +225,11 @@ export default {
 .p-avatar-upload-error {
     background: #ffbaba;
     border: 2px solid var(--brand-error);
+}
+
+.p-avatar-upload-pending { /* Add this block for pending status styling */
+    background: #fff3cd;
+    border: 2px solid var(--brand-warning);
 }
 
 .p-avatar-upload-input {
@@ -244,3 +248,4 @@ export default {
     white-space: nowrap;
 }
 </style>
+
