@@ -23,7 +23,7 @@ kiwi.plugin('asl', (kiwi, log) => {
         }
 
         if (!event.account) {
-            // User has logged out remove our avatars
+            // User has logged out, remove our avatars
             clearPluginAvatars(user.avatar);
         }
 
@@ -102,6 +102,7 @@ kiwi.plugin('asl', (kiwi, log) => {
     }
 });
 
+<<<<<<< HEAD
 function setDefaultAvatar(user) {
     const defaultAvatarUrl = config.getSetting('default_avatar_url') || '/home/debian/irc/AvatarsUsersFile/default.png';
     if (!user.avatar.small) {
@@ -111,3 +112,5 @@ function setDefaultAvatar(user) {
         user.avatar.large = defaultAvatarUrl;
     }
 }
+=======
+>>>>>>> 5a0f239ee1207f11e69ff69e63a77bf2ae44376a
