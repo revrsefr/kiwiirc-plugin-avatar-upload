@@ -58,6 +58,7 @@ export default {
                 dragMode: 'move',
             },
             fileName: '',
+            fileExtension: '', // Add this to keep track of file extension
             postError: '',
         };
     },
@@ -70,10 +71,12 @@ export default {
             this.showCropper = false;
             this.postError = '';
             this.fileName = '';
+            this.fileExtension = ''; // Reset file extension
 
             const file = event.target.files[0];
             if (file) {
                 this.fileName = file.name || '';
+                this.fileExtension = file.name.split('.').pop(); // Capture the file extension
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.showCropper = true;
@@ -129,12 +132,16 @@ export default {
                         if (!response.ok) {
                             throw new Error();
                         }
+                        return response.json(); // Parse the JSON response
+                    })
+                    .then((data) => {
                         const avatarUrl = config.getSetting('avatars_url');
                         const lcAccount = this.user.account.toLowerCase();
                         const date = Date.now();
+                        const extension = this.fileExtension.toLowerCase(); // Use the captured file extension
                         Object.assign(this.user.avatar, {
-                            small: avatarUrl + `small/${lcAccount}.png?cb=${date}`,
-                            large: avatarUrl + `large/${lcAccount}.png?cb=${date}`,
+                            small: `${avatarUrl}small/${lcAccount}.${extension}?cb=${date}`,
+                            large: `${avatarUrl}large/${lcAccount}.${extension}?cb=${date}`,
                         });
                     })
                     .catch(() => {
@@ -144,8 +151,9 @@ export default {
                         this.showUploading = false;
                         this.$refs.file.value = '';
                         this.fileName = '';
+                        this.fileExtension = ''; // Reset after upload
                     });
-            }, 'image/png');
+            }, `image/${this.fileExtension}`);
         },
         getExtjwtToken(network) {
             return new Promise((resolve, reject) => {
@@ -202,11 +210,13 @@ export default {
 
     .cropper-view-box {
         border-radius: 50%;
+        /* stylelint-disable-next-line declaration-no-important */
         outline: inherit !important;
         box-shadow: 0 0 0 1px #39f;
     }
 
     .cropper-face {
+        /* stylelint-disable-next-line declaration-no-important */
         background-color: inherit !important;
     }
 }

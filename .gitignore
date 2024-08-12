@@ -9,6 +9,7 @@ tests/coverage/
 .env
 VisionGoogle.json
 config.ini
+__pycache__
 # Log files
 npm-debug.log*
 yarn-debug.log*
