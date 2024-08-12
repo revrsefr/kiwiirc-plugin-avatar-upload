@@ -34,7 +34,7 @@ JWT_ALGORITHM = 'HS256'
 THUMBNAIL_LARGE = 200
 THUMBNAIL_SMALL = 80
 AVATAR_DIR = '/home/debian/irc/AvatarsUsersFile'
-ALLOWED_DOMAINS = ['https://web.redlatina.chat', 'https://chat.yagua.com.py']
+ALLOWED_DOMAINS = ['https://web.redlatina.chat','https://chat.yagua.com.py','https://kiwi.matojeando.comy']
 
 def send_irc_report(message):
     logging.info(f"Sending report to IRC: {message}")
