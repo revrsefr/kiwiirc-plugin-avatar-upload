@@ -35,4 +35,13 @@ export default {
         error: 'Errore durante il caricamento dell\'avatar',
         token: 'Impossibile ottenere il token di autorizzazione',
     },
+    'es-es': {
+        title: 'Sube tu Avatar aqui',
+        upload: 'Subir',
+        uploading: 'Subiendo...',
+        choose: 'Elige un archivo',
+        invalid: 'Tipo de imagen no permitida.',
+        error: 'Error al subir el avatar ingresa a #Ayuda-IRC.',
+        token: 'Token no valido, ingresa a #Ayuda-IRC.',
+    },
 };
