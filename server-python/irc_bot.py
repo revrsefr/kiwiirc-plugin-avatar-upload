@@ -48,8 +48,8 @@ class ReportBot(irc.bot.SingleServerIRCBot):
                 # Send a notice to the user who uploaded the inappropriate content
                 if account:
                     notice_message = (
-                        "You have been reported to the operators. "
-                        "Do not TRY TO UPLOAD THIS KIND OF PICTURES or you will be permanently banned."
+                        "Ha sido reportado a los operadores. "
+                        "No INTENTES subir nuevamente este tipo de foto/imagen o serás baneado permanentemente del chat."
                     )
                     self.send_notice(account, notice_message)
             except Exception as e:
@@ -72,7 +72,7 @@ class ReportBot(irc.bot.SingleServerIRCBot):
     def check_for_messages(self):
         while True:
             if os.path.exists(MESSAGE_FILE):
-                with open(MESSAGE_FILE, 'r') as f:
+                with open(MESSAGE_FILE, 'r', encoding='utf-8', errors='ignore') as f:
                     messages = f.readlines()
 
                 if messages:
