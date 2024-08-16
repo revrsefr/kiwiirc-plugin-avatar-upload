@@ -5,18 +5,45 @@ import os
 import signal
 import sys
 import time
+import sqlite3
+from jaraco.stream import buffer
 
 # IRC Bot configuration
 IRC_SERVER = 'irc.chateagratis.chat'
 IRC_PORT = 6667
-IRC_CHANNEL_OPERS = '#opers'  # Channel where the report is sent
+IRC_CHANNEL_OPERS = '#opers'  # Channel where the bot should ignore messages
 IRC_NICKNAME = 'FilesControl'
 PID_FILE = 'irc_bot.pid'
 MESSAGE_FILE = 'irc_messages.txt'  # File to store messages
+LOG_DIR = './logs'
+LOG_FILE = os.path.join(LOG_DIR, 'bot.log')
+DB_FILE = 'ignored_nicks.db'
+
+# Ensure the log directory exists
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+# Configure logging to write to a file
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s: %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# Custom buffer class to ignore decoding errors
+class IgnoreErrorsBuffer(buffer.DecodingLineBuffer):
+    def handle_exception(self):
+        pass
+
+# Assign the custom buffer class to the ServerConnection
+irc.client.ServerConnection.buffer_class = IgnoreErrorsBuffer
 
 class ReportBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel_opers, nickname, server, port=6667):
-        irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
+        super().__init__([(server, port)], nickname, nickname)
         self.channel_opers = channel_opers
         self.is_connected = False
         self.connection_event = threading.Event()
@@ -33,10 +60,28 @@ class ReportBot(irc.bot.SingleServerIRCBot):
             self.connection_event.set()
 
     def on_ping(self, connection, event):
-        """Explicitly handle ping events."""
+        """Handle ping events."""
         logging.debug("Received ping from server")
         connection.pong(event.target)
         logging.debug("Responded to ping")
+
+    def on_pubmsg(self, connection, event):
+        """Ignore all public messages from the #opers channel."""
+        try:
+            channel = event.target
+            nickname = irc.client.NickMask(event.source).nick
+
+            # If the message is from #opers, ignore it
+            if channel == self.channel_opers:
+                logging.debug(f"Ignoring message from {nickname} in {channel}")
+                return
+
+            # If needed, handle messages from other channels
+            message = event.arguments[0]
+            logging.info(f"Received message from {nickname} in {channel}: {message}")
+
+        except Exception as e:
+            logging.error(f"Error while processing channel message: {e}")
 
     def send_report(self, message, account=None):
         if self.is_connected:
@@ -45,7 +90,6 @@ class ReportBot(irc.bot.SingleServerIRCBot):
                 self.connection.privmsg(self.channel_opers, message)
                 logging.info("Message sent successfully")
 
-                # Send a notice to the user who uploaded the inappropriate content
                 if account:
                     notice_message = (
                         "Ha sido reportado a los operadores. "
@@ -59,7 +103,7 @@ class ReportBot(irc.bot.SingleServerIRCBot):
 
     def send_notice(self, account, notice_message):
         """Send a private notice to the user."""
-        if account:  # Ensure that account is not empty
+        if account:
             try:
                 logging.info(f"Sending notice to {account}: {notice_message}")
                 self.connection.notice(account, notice_message)
@@ -81,7 +125,6 @@ class ReportBot(irc.bot.SingleServerIRCBot):
                         logging.debug(f"Processing message: {message}")
 
                         if "REPORTE:" in message:
-                            # Attempt to extract the account name
                             account_start = message.find("-->") + 3
                             account_end = message.find("<--")
                             if account_start > 3 and account_end > account_start:
@@ -92,13 +135,39 @@ class ReportBot(irc.bot.SingleServerIRCBot):
                                 logging.error(f"Failed to extract account name from message: {message}")
                                 self.send_report(message)
                         else:
-                            # Send the second message directly
                             self.send_report(message)
 
-                # Clear the file after processing messages
                 with open(MESSAGE_FILE, 'w'):
                     pass
             time.sleep(1)  # Check every second for new messages
+
+    def is_admin(self, nickname):
+        # Define your admin list here or fetch it from a config/database
+        admins = ["reverse", "JeFeCiTo"]  # Replace with actual admin nicknames
+        return nickname in admins
+
+def setup_database():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS ignored_nicks
+                      (nick TEXT PRIMARY KEY)''')
+    conn.commit()
+    conn.close()
+
+def add_ignored_nick(nick):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('INSERT OR IGNORE INTO ignored_nicks (nick) VALUES (?)', (nick,))
+    conn.commit()
+    conn.close()
+
+def is_nick_ignored(nick):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT 1 FROM ignored_nicks WHERE nick = ?', (nick,))
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
 
 def write_pid_file():
     with open(PID_FILE, 'w') as f:
@@ -144,7 +213,7 @@ def run_bot():
     return bot
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    setup_database()
     run_bot()
 
     while True:
