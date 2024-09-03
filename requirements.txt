@@ -1,13 +1,13 @@
 blinker==1.8.2
 cachetools==5.3.3
-certifi==2024.6.2
+certifi==2024.7.4
 cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 configparser==7.0.0
 cryptography==42.0.8
 Flask==3.0.3
-Flask-Cors==4.0.1
+Flask-Cors==5.0.0
 google-api-core==2.19.1
 google-auth==2.30.0
 google-cloud-vision==3.7.2
