@@ -41,7 +41,7 @@ It requires the ircd to support EXTJWT tokens, and a php server to upload the av
     "api_url": "/path/to/api.php",
 
     // Url path to avatar storage directory
-    "avatars_url": '/path/to/avatars/',
+    "avatars_url": "/path/to/avatars/",
 
     // Avatars will be preloaded to check they exist on the server
     // with this set to false it it recommended to have a default avatar
