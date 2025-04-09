@@ -35,4 +35,13 @@ export default {
         error: 'Errore durante il caricamento dell\'avatar',
         token: 'Impossibile ottenere il token di autorizzazione',
     },
+    'tr-tr': {
+        title: 'Resim Yükle',
+        upload: 'Yükle',
+        uploading: 'Yükleniyor...',
+        choose: 'Dosya Seç',
+        invalid: 'Geçersiz resim seçildi',
+        error: 'Resim yüklenirken hata oluştu',
+        token: 'Yetkilendirme jetonu alınamadı',
+    },
 };
