@@ -5,7 +5,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 configparser==7.0.0
-cryptography==43.0.1
+cryptography==44.0.1
 Flask==3.0.3
 Flask-Cors==5.0.0
 google-api-core==2.19.1
@@ -14,7 +14,7 @@ google-cloud-vision==3.7.2
 googleapis-common-protos==1.63.2
 grpcio==1.64.1
 grpcio-status==1.62.2
-gunicorn==22.0.0
+gunicorn==23.0.0
 idna==3.7
 itsdangerous==2.2.0
 Jinja2==3.1.5
